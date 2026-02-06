@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LU4: Designing Compelling Ad Creatives</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1500px;
+        }
+
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+            padding: 60px;
+            display: none;
+            flex-direction: column;
+            position: relative;
+            animation: slideIn 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) rotateX(10deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotateX(0deg);
+            }
+        }
+
+        .slide-header {
+            margin-bottom: 35px;
+        }
+
+        .slide-number {
+            color: #f5576c;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            color: #2d3748;
+            font-size: 52px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        h2 {
+            color: #f5576c;
+            font-size: 36px;
+            margin-bottom: 25px;
+        }
+
+        h3 {
+            color: #4a5568;
+            font-size: 24px;
+            margin-bottom: 18px;
+            margin-top: 25px;
+        }
+
+        .slide-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 20px;
+        }
+
+        .slide-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .slide-content::-webkit-scrollbar-track {
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+
+        .slide-content::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 10px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 22px;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .hero-text {
+            font-size: 20px;
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 35px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #fff5f7 0%, #ffffff 100%);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.15);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(245, 87, 108, 0.25);
+            border-color: #f5576c;
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 18px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #f5576c;
+        }
+
+        .card p {
+            color: #4a5568;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .feature-box {
+            background: #fff;
+            padding: 25px;
+            margin: 18px 0;
+            border-radius: 12px;
+            border-left: 5px solid #f5576c;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-box:hover {
+            background: linear-gradient(135deg, #fff5f7 0%, #ffffff 100%);
+            transform: translateX(12px);
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.2);
+        }
+
+        .feature-box strong {
+            color: #f5576c;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 19px;
+        }
+
+        .feature-box p {
+            color: #4a5568;
+            line-height: 1.7;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #f093fb15 0%, #f5576c15 100%);
+            border-radius: 16px;
+            padding: 35px;
+            margin: 30px 0;
+            border: 2px dashed #f5576c;
+        }
+
+        .tool-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.25);
+        }
+
+        .tool-icon {
+            font-size: 40px;
+            flex-shrink: 0;
+        }
+
+        .tool-info h4 {
+            color: #f5576c;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .tool-info p {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #f093fb;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 5px 5px 5px 0;
+            font-weight: 600;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px solid #f1f5f9;
+        }
+
+        .nav-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(245, 87, 108, 0.6);
+        }
+
+        .nav-button:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .nav-button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .progress-dots {
+            display: flex;
+            gap: 12px;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #cbd5e0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .dot:hover {
+            background: #a0aec0;
+        }
+
+        .dot.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: scale(1.4);
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+            border-left: 5px solid #ffa726;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .tip-box strong {
+            color: #e65100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+
+        .tip-box p {
+            color: #5d4037;
+            line-height: 1.7;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #f093fb30 0%, #f5576c30 100%);
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-weight: 700;
+            color: #c41e3a;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            margin: 25px 0;
+        }
+
+        .principle-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .principle-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 35px rgba(245, 87, 108, 0.3);
+        }
+
+        .principle-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .principle-card h4 {
+            color: #f5576c;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .example-ad {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .example-ad::after {
+            content: 'EXAMPLE';
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            background: #f5576c;
+            color: white;
+            padding: 5px 40px;
+            transform: rotate(45deg);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .ad-headline {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+
+        .ad-body {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .ad-cta {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ad-cta:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 15px 15px 15px 50px;
+            position: relative;
+            color: #4a5568;
+            line-height: 1.7;
+            margin: 10px 0;
+            background: #f7fafc;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .checklist li:hover {
+            background: linear-gradient(135deg, #f093fb10 0%, #f5576c10 100%);
+            transform: translateX(10px);
+        }
+
+        .checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 18px;
+            color: white;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .emotion-trigger {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .emotion-trigger strong {
+            color: #1565c0;
+            font-size: 18px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .stats-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.2);
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            h2 {
+                font-size: 28px;
+            }
+
+            .content-grid,
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-button {
+                padding: 12px 25px;
+                font-size: 14px;
+            }
+        }
+
+        .interactive-toggle {
+            margin: 30px 0;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn {
+            background: white;
+            border: 2px solid #f5576c;
+            color: #f5576c;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn:hover,
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+        }
+
+        .toggle-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .toggle-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active" data-slide="1">
+            <div class="slide-header">
+                <div class="slide-number">ADVERTISING MASTERCLASS</div>
+                <h1>LU4: Designing Compelling Ad Creatives</h1>
+                <p class="subtitle">Master the art and science of designing ads that captivate, persuade, and convert</p>
+            </div>
+            <div class="slide-content">
+                <div class="content-grid">
+                    <div class="card">
+                        <span class="card-icon">🎨</span>
+                        <h3>Elements of High-Converting Ads</h3>
+                        <p>Discover the key components of effective design, visual best practices, and psychological principles that drive action</p>
+                    </div>
+                    <div class="card">
+                        <span class="card-icon">🛠️</span>
+                        <h3>Tools for Ad Creation</h3>
+                        <p>Explore powerful graphic design tools, video creation platforms, and resources for professional-quality assets</p>
+                    </div>
+                    <div class="card">
+                        <span class="card-icon">✍️</span>
+                        <h3>Ad Copywriting Techniques</h3>
+                        <p>Learn to write persuasive headlines, leverage emotional triggers, and craft CTAs that compel immediate action</p>
+                    </div>
+                </div>
+
+                <div class="stats-box" style="margin-top: 40px;">
+                    <div class="stat-item">
+                        <div class="stat-number">3x</div>
+                        <div class="stat-label">Higher Engagement</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">47%</div>
+                        <div class="stat-label">Increase in CTR</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">2.5x</div>
+                        <div class="stat-label">Better Conversions</div>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevSlide()" disabled>Previous</button>
+                <div class="progress-dots" id="progressDots"></div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 2: Key Components of Effective Design -->
+        <div class="slide" data-slide="2">
+            <div class="slide-header">
+                <div class="slide-number">SECTION 1: ELEMENTS OF HIGH-CONVERTING ADS</div>
+                <h2>Key Components of Effective Design</h2>
+            </div>
+            <div class="slide-content">
+                <p class="hero-text">
+                    Great ad design isn't about being pretty—it's about being <span class="highlight">effective</span>. Every element should work together to guide the viewer's eye and drive them toward your desired action.
+                </p>
+
+                <div class="content-grid">
+                    <div class="feature-box">
+                        <strong>🎯 Clear Focal Point</strong>
+                        <p>Your ad needs one primary message or visual that immediately captures attention. The viewer should know where to look within 0.5 seconds.</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>🎨 Strategic Color Usage</strong>
+                        <p>Colors evoke emotions and create hierarchy. Use contrast to make key elements pop and maintain brand consistency for recognition.</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>📐 Visual Hierarchy</strong>
+                        <p>Guide the eye through your ad using size, color, and placement. Most important element → supporting details → call-to-action.</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>⚡ Simplicity & Clarity</strong>
+                        <p>Remove anything that doesn't serve your message. White space is your friend—it makes your ad breathable and focused.</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>🖼️ High-Quality Imagery</strong>
+                        <p>Crisp, professional images build trust. Blurry or stock-looking photos signal low quality and hurt credibility.</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>📱 Mobile Optimization</strong>
+                        <p>Over 70% of ads are viewed on mobile. Ensure text is readable, buttons are tappable, and images scale perfectly.</p>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>💡 Design Principle:</strong>
+                    <p>The F-Pattern: People scan content in an F-shaped pattern. Place your logo top-left, headline across the top, and CTA in the hot zones (left side or bottom-right).</p>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevSlide()">Previous</button>
+                <div class="progress-dots"></div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 3: Best Practices for Visual Appeal -->
+        <div class="slide" data-slide="3">
+            <div class="slide-header">
+                <div class="slide-number">SECTION 1: ELEMENTS OF HIGH-CONVERTING ADS</div>
+                <h2>Best Practices for Visually Appealing Ads</h2>
+            </div>
+            <div class="slide-content">
+                <h3>The Golden Rules of Visual Design</h3>
+
+                <div class="two-column">
+                    <div>
+                        <div class="principle-card">
+                            <span class="principle-icon">🎭</span>
+                            <h4>Contrast is King</h4>
+                            <p>Make your CTA button stand out with contrasting colors. If your brand is blue, use orange or yellow for buttons. High contrast = high visibility.</p>
+                        </div>
+                        <div class="principle-card">
+                            <span class="principle-icon">📏</span>
+                            <h4>Use the Rule of Thirds</h4>
+                            <p>Divide your ad into a 3×3 grid. Place key elements along the lines or intersections for natural, balanced composition.</p>
+                        </div>
+                        <div class="principle-card">
+                            <span class="principle-icon">🔤</span>
+                            <h4>Typography Hierarchy</h4>
+                            <p>Use maximum 2-3 fonts. Headline (large, bold) → subheading (medium) → body text (small, readable). Consistent sizing creates order.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="principle-card">
+                            <span class="principle-icon">🌈</span>
+                            <h4>Color Psychology</h4>
+                            <p>Red = urgency, Blue = trust, Green = growth, Yellow = optimism, Purple = luxury. Choose colors that align with your message.</p>
+                        </div>
+                        <div class="principle-card">
+                            <span class="principle-icon">👁️</span>
+                            <h4>Direct Eye Contact</h4>
+                            <p>People in ads should look at the camera or toward your CTA. Eye contact creates connection and guides attention.</p>
+                        </div>
+                        <div class="principle-card">
+                            <span class="principle-icon">⚖️</span>
+                            <h4>Balance & Alignment</h4>
+                            <p>Align elements to a grid. Balanced layouts feel professional and trustworthy. Asymmetry can work but must be intentional.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>⚡ Pro Tip:</strong>
+                    <p>Use the "squint test": Blur your eyes when looking at your ad. Can you still identify the main message and CTA? If not, increase contrast and simplify.</p>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevSlide()">Previous</button>
+                <div class="progress-dots"></div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 4: Psychological Principles -->
+        <div class="slide" data-slide="4">
+            <div class="slide-header">
+                <div class="slide-number">SECTION 1: ELEMENTS OF HIGH-CONVERTING ADS</div>
+                <h2>Psychological Principles in Ad Design</h2>
+            </div>
+            <div class="slide-content">
+                <p class="hero-text">
+                    Understanding <span class="highlight">psychology</span> is the secret weapon of high-converting ads. These principles tap into how the human brain processes information and makes decisions.
+                </p>
+
+                <div class="interactive-demo">
+                    <h3 style="margin-top: 0;">Key Psychological Triggers</h3>
+                    
+                    <div class="feature-box">
+                        <strong>🧲 Social Proof</strong>
+                        <p>People follow the crowd. Include testimonials, ratings, user counts ("Join 10,000+ happy customers"), or trust badges to build credibility instantly.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <strong>⏰ Scarcity & Urgency</strong>
+                        <p>Limited availability triggers FOMO (fear of missing out). Use countdown timers, "Only 3 left in stock," or "24-hour flash sale" to drive immediate action.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <strong>🎁 Reciprocity</strong>
+                        <p>Give something first, and people feel obligated to give back. Offer free guides, trials, or valuable content before asking for a purchase.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <strong>👔 Authority</strong>
+                        <p>Expert endorsements boost trust. Show credentials, certifications, awards, or feature experts saying "As recommended by [authority figure]."</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <strong>💝 Emotional Appeal</strong>
+                        <p>Emotions drive decisions, logic justifies them. Target pain points (fear, frustration) or aspirations (joy, success, belonging).</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <strong>🔄 Consistency Principle</strong>
+                        <p>People want to be consistent with past actions. If they clicked your ad, they're more likely to follow through. Make the next step easy and obvious.</p>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>🧠 Brain Science:</strong>
+                    <p>The brain processes images 60,000x faster than text. Combine powerful visuals with one of these psychological triggers for maximum impact.</p>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevSlide()">Previous</button>
+                <div class="progress-dots"></div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 5: Graphic Design Tools -->
+        <div class="slide" data-slide="5">
+            <div class="slide-header">
+                <div class="slide-number">SECTION 2: TOOLS FOR AD CREATION</div>
+                <h2>Graphic Design Tools</h2>
+            </div>
+            <div class="slide-content">
+                <p class="hero-text">
+                    You don't need to be a professional designer to create stunning ads. These tools make it easy to produce <span class="highlight">professional-quality</span> graphics.
+                </p>
+
+                <div class="interactive-toggle">
+                    <div class="toggle-buttons">
+                        <button class="toggle-btn active" onclick="toggleTool('beginner')">Beginner-Friendly</button>
+                        <button class="toggle-btn" onclick="toggleTool('intermediate')">Intermediate</button>
+                        <button class="toggle-btn" onclick="toggleTool('advanced')">Advanced</button>
+                    </div>
+
+                    <div class="toggle-content active" id="beginner">
+                        <div class="tool-card">
+                            <div class="tool-icon">🎨</div>
+                            <div class="tool-info">
+                                <h4>Canva</h4>
+                                <p>Drag-and-drop interface with 1000s of templates. Perfect for social media ads, display ads, and quick graphics. Free and pro versions available.</p>
+                                <span class="tag">Free Plan</span>
+                                <span class="tag">Templates</span>
+                                <span class="tag">Easy</span>
+                            </div>
+                        </div>
+
+                        <div class="tool-card">
+                            <div class="tool-icon">✨</div>
+                            <div class="tool-info">
+                                <h4>Adobe Express (formerly Spark)</h4>
+                                <p>Simple Adobe tool for quick graphics, social posts, and web pages. Cloud-based with beautiful templates and Adobe stock integration.</p>
+                                <span class="tag">Adobe Suite</span>
+                                <span class="tag">Cloud-Based</span>
+                                <span class="tag">Fast</span>
+                            </div>
+                        </div>
+
+                        <div class="tool-card">
+                            <div class="tool-icon">🖼️</div>
+                            <div class="tool-info">
+                                <h4>Crello (now VistaCreate)</h4>
+                                <p>Canva alternative with animated design options. Great for creating eye-catching social media ads with motion.</p>
+                                <span class="tag">Animation</span>
+                                <span class="tag">Free Plan</span>
+                                <span class="tag">Templates</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="toggle-content" id="intermediate">
+                        <div class="tool-card">
+                            <div class="tool-icon">🎭</div>
+                            <div class="tool-info">
+                                <h4>Figma</h4>
+                                <p>Collaborative design tool with powerful vector editing. Industry-standard for UI/UX, excellent for ad design and prototyping.</p>
+                                <span class="tag">Collaborative</span>
+                                <span class="tag">Free Plan</span>
+                                <span class="tag">Vector</span>
+                            </div>
+                        </div>
+
+                        <div class="tool-card">
+                            <div class="tool-icon">🌟</div>
+                            <div class="tool-info">
+                                <h4>Affinity Designer</h4>
+                                <p>Professional vector graphics software at one-time purchase price. Alternative to Adobe Illustrator without subscription.</p>
+                                <span class="tag">One-Time Cost</span>
+                                <span class="tag">Professional</span>
+                                <span class="tag">Vector</span>
+                            </div>
+                        </div>
+
+                        <div class="tool-card">
+                            <div class="tool-icon">🎬</div>
+                            <div class="tool-info">
+                                <h4>Sketch</h4>
+                                <p>Mac-only design tool loved by designers. Great for creating pixel-perfect ads and maintaining design systems.</p>
+                                <span class="tag">Mac Only</span>
+                                <span class="tag">Professional</span>
+                                <span class="tag">UI Design</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="toggle-content" id="advanced">
+                        <div class="tool-card">
+                            <div class="tool-icon">🔷</div>
+                            <div class="tool-info">
+                                <h4>Adobe Photoshop</h4>
+                                <p>Industry standard for raster graphics and photo editing. Unlimited creative possibilities for professional ad campaigns.</p>
+                                <span class="tag">Professional</span>
+                                <span class="tag">Photo Editing</span>
+                                <span class="tag">Industry Standard</span>
+                            </div>
+                        </div>
+
+                        <div class="tool-card">
+                            <div class="tool-icon">🔶</div>
+                            <div class="tool-info">
+                                <h4>Adobe Illustrator</h4>
+                                <p>Vector graphics powerhouse. Create scalable logos, illustrations, and graphics that look perfect at any size.</p>
+                                <span class="tag">Vector Graphics</span>
+                                <span class="tag">Professional</span>
+                                <span class="tag">Scalable</span>
+                            </div>
+                        </div>
+
+                        <div class="tool-card">
+                            <div class="tool-icon">🎨</div>
+                            <div class="tool-info">
+                                <h4>Adobe InDesign</h4>
+                                <p>Layout and publishing tool for multi-page ads, brochures, and print campaigns. Perfect for magazine ads and catalogs.</p>
+                                <span class="tag">Print Design</span>
+                                <span class="tag">Layout</span>
+                                <span class="tag">Publishing</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevSlide()">Previous</button>
+                <div class="progress-dots"></div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 6: Video Creation Tools -->
+        <div class="slide" data-slide="6">
+            <div class="slide-header">
+                <div class="slide-number">SECTION 2: TOOLS FOR AD CREATION</div>
+                <h2>Video Creation Tools</h2>
+            </div>
+            <div class="slide-content">
+                <p class="hero-text">
+                    Video ads generate <span class="highlight">1200% more shares</span> than text and image combined. These tools help you create professional video content without a film crew.
+                </p>
+
+                <div class="tool-card">
+                    <div class="tool-icon">📹</div>
+                    <div class="tool-info">
+                        <h4>Canva Video</h4>
+                        <p>Easy video editing with drag-and-drop interface. Perfect for quick social media videos, stories, and short ads. Includes stock footage library.</p>
+                        <span class="tag">Beginner</span>
+                        <span class="tag">Templates</span>
+                        <span class="tag">Stock Footage</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-icon">🎬</div>
+                    <div class="tool-info">
+                        <h4>Adobe Premiere Pro</h4>
+                        <p>Professional video editing software used by filmmakers. Complete control over every aspect of your video ads. Steep learning curve but unlimited power.</p>
+                        <span class="tag">Professional</span>
+                        <span class="tag">Advanced</span>
+                        <span class="tag">Industry Standard</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-icon">🎥</div>
+                    <div class="tool-info">
+                        <h4>Final Cut Pro</h4>
+                        <p>Apple's professional video editing software. Optimized for Mac, fast rendering, magnetic timeline makes editing intuitive.</p>
+                        <span class="tag">Mac Only</span>
+                        <span class="tag">Professional</span>
+                        <span class="tag">Fast Rendering</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-icon">🌊</div>
+                    <div class="tool-info">
+                        <h4>DaVinci Resolve</h4>
+                        <p>Free professional-grade video editor with color grading tools. Used in Hollywood films. Powerful free version available.</p>
+                        <span class="tag">Free Version</span>
+                        <span class="tag">Color Grading</span>
+                        <span class="tag">Professional</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-icon">⚡</div>
+                    <div class="tool-info">
+                        <h4>Animoto</h4>
+                        <p>Create marketing videos quickly with templates. Upload your media, choose a style, and get a polished video in minutes.</p>
+                        <span class="tag">Quick</span>
+                        <span class="tag">Templates</span>
+                        <span class="tag">Marketing Focus</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-icon">🎨</div>
+                    <div class="tool-info">
+                        <h4>Adobe After Effects</h4>
+                        <p>Motion graphics and visual effects software. Create animated ads, text animations, and eye-catching effects for video ads.</p>
+                        <span class="tag">Animation</span>
+                        <span class="tag">Effects</span>
+                        <span class="tag">Advanced</span>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>🎯 Video Ad Tip:</strong>
+                    <p>The first 3 seconds determine if someone keeps watching. Hook viewers immediately with movement, bold text, or an intriguing question. Auto-play is silent, so add captions!</p>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevSlide()">Previous</button>
+                <div class="progress-dots"></div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 7: Resources for Assets -->
+        <div class="slide" data-slide="7">
+            <div class="slide-header">
+                <div class="slide-number">SECTION 2: TOOLS FOR AD CREATION</div>
+                <h2>Resources for High-Quality Images & Videos</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Stock Photography & Video Resources</h3>
+
+                <div class="two-column">
+                    <div>
+                        <h4 style="color: #f5576c; margin-bottom: 15px;">📸 Free Resources</h4>
+                        <div class="tool-card">
+                            <div class="tool-icon">🆓</div>
+                            <div class="tool-info">
+                                <h4>Unsplash</h4>
+                                <p>High-quality, free photos. Beautiful imagery for any niche. No attribution required.</p>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-icon">📷</div>
+                            <div class="tool-info">
+                                <h4>Pexels</h4>
+                                <p>Free stock photos and videos. Great community-contributed content, searchable library.</p>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-icon">🎬</div>
+                            <div class="tool-info">
+                                <h4>Pixabay</h4>
+                                <p>Free images, videos, and music. Over 2.7 million assets. Commercial use allowed.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="color: #f5576c; margin-bottom: 15px;">💎 Premium Resources</h4>
+                        <div class="tool-card">
+                            <div class="tool-icon">⭐</div>
+                            <div class="tool-info">
+                                <h4>Shutterstock</h4>
+                                <p>Massive library of premium images, videos, music. Subscription or pay-per-download.</p>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-icon">🎨</div>
+                            <div class="tool-info">
+                                <h4>Adobe Stock</h4>
+                                <p>Integrated with Adobe apps. Premium quality, unique images. Includes templates.</p>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-icon">🌟</div>
+                            <div class="tool-info">
+                                <h4>iStock</h4>
+                                <p>Affordable premium stock from Getty Images. Credit-based pricing, exclusive content.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">🎵 Music & Sound Effects</h3>
+                <div class="content-grid">
+                    <div class="feature-box">
+                        <strong>Epidemic Sound</strong>
+                        <p>Royalty-free music for ads. Subscription-based, perfect for video advertising campaigns</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>Artlist</strong>
+                        <p>Unlimited music and SFX downloads. One annual license covers all projects</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>YouTube Audio Library</strong>
+                        <p>Free music and sound effects from YouTube. Filter by mood, genre, and attribution</p>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>⚖️ Legal Reminder:</strong>
+                    <p>Always check licensing. "Royalty-free" doesn't mean free—it means no ongoing royalties. Read terms carefully before using any asset in commercial ads.</p>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevSlide()">Previous</button>
+                <div class="progress-dots"></div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 8: Writing Persuasive Headlines -->
+        <div class="slide" data-slide="8">
+            <div class="slide-header">
+                <div class="slide-number">SECTION 3: AD COPYWRITING TECHNIQUES</div>
+                <h2>Writing Persuasive Headlines & Body Text</h2>
+            </div>
+            <div class="slide-content">
+                <p class="hero-text">
+                    Your headline has <span class="highlight">one job</span>: make people want to read more. 80% of people read headlines, only 20% read the rest. Make every word count.
+                </p>
+
+                <h3>Proven Headline Formulas</h3>
+
+                <div class="feature-box">
+                    <strong>❓ Question Headlines</strong>
+                    <p>"Are You Making These 5 Marketing Mistakes?" – Engages curiosity and promises a solution</p>
+                </div>
+
+                <div class="feature-box">
+                    <strong>📊 Number Headlines</strong>
+                    <p>"7 Ways to Double Your Sales in 30 Days" – Specific numbers create clear expectations and feel tangible</p>
+                </div>
+
+                <div class="feature-box">
+                    <strong>🎯 How-To Headlines</strong>
+                    <p>"How to Get 10,000 Instagram Followers Without Spending a Dime" – Promises practical value</p>
+                </div>
+
+                <div class="feature-box">
+                    <strong>⚡ Urgency Headlines</strong>
+                    <p>"Last Chance: 50% Off Ends Tonight" – Creates FOMO and drives immediate action</p>
+                </div>
+
+                <div class="feature-box">
+                    <strong>🔥 Benefit-Driven Headlines</strong>
+                    <p>"Get Flawless Skin in Just 7 Days" – Focuses on the outcome, not the product</p>
+                </div>
+
+                <h3 style="margin-top: 30px;">Body Text Best Practices</h3>
+                <ul class="checklist">
+                    <li><strong>One idea per sentence:</strong> Make it easy to scan and digest quickly</li>
+                    <li><strong>Focus on benefits, not features:</strong> "Sleep better" not "memory foam"</li>
+                    <li><strong>Use active voice:</strong> "We'll transform your business" vs "Your business will be transformed"</li>
+                    <li><strong>Keep paragraphs short:</strong> 2-3 sentences max for easy mobile reading</li>
+                    <li><strong>Address objections:</strong> "No credit card required" or "100% money-back guarantee"</li>
+                </ul>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevSlide()">Previous</button>
+                <div class="progress-dots"></div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 9: Emotional Triggers -->
+        <div class="slide" data-slide="9">
+            <div class="slide-header">
+                <div class="slide-number">SECTION 3: AD COPYWRITING TECHNIQUES</div>
+                <h2>Using Emotional Triggers & Storytelling</h2>
+            </div>
+            <div class="slide-content">
+                <p class="hero-text">
+                    People buy on <span class="highlight">emotion</span> and justify with logic. Tap into these core emotions to create ads that resonate deeply and drive action.
+                </p>
+
+                <h3>The 7 Core Emotional Triggers</h3>
+
+                <div class="emotion-trigger">
+                    <strong>😨 Fear (Loss Aversion)</strong>
+                    <p>"Don't lose your data—backup now before it's too late"</p>
+                    <p style="margin-top: 10px; font-style: italic; color: #1565c0;">Use: Security products, insurance, preventative solutions</p>
+                </div>
+
+                <div class="emotion-trigger" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-left-color: #f57c00;">
+                    <strong style="color: #e65100;">🎁 Greed (Gain)</strong>
+                    <p>"Make an extra $1,000 this month with just 2 hours of work"</p>
+                    <p style="margin-top: 10px; font-style: italic; color: #e65100;">Use: Financial products, courses, money-making opportunities</p>
+                </div>
+
+                <div class="emotion-trigger" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); border-left-color: #8e24aa;">
+                    <strong style="color: #6a1b9a;">💖 Love & Belonging</strong>
+                    <p>"Join 50,000 members in our thriving community"</p>
+                    <p style="margin-top: 10px; font-style: italic; color: #6a1b9a;">Use: Communities, dating apps, social products</p>
+                </div>
+
+                <div class="emotion-trigger" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-left-color: #43a047;">
+                    <strong style="color: #2e7d32;">👔 Pride (Status)</strong>
+                    <p>"For executives who refuse to settle for ordinary"</p>
+                    <p style="margin-top: 10px; font-style: italic; color: #2e7d32;">Use: Luxury products, premium services, exclusive offers</p>
+                </div>
+
+                <div class="emotion-trigger" style="background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%); border-left-color: #fdd835;">
+                    <strong style="color: #f57f17;">😊 Joy & Happiness</strong>
+                    <p>"Bring back the spark in your relationship"</p>
+                    <p style="margin-top: 10px; font-style: italic; color: #f57f17;">Use: Entertainment, gifts, experiences, lifestyle products</p>
+                </div>
+
+                <h3 style="margin-top: 30px;">The Power of Storytelling</h3>
+                <div class="interactive-demo">
+                    <strong style="display: block; margin-bottom: 15px; color: #f5576c; font-size: 18px;">Story Structure for Ads:</strong>
+                    <div class="feature-box">
+                        <strong>1. The Problem (Pain Point)</strong>
+                        <p>"Sarah was struggling to find time for exercise while working full-time..."</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>2. The Solution (Your Product)</strong>
+                        <p>"Then she discovered our 15-minute home workout program..."</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>3. The Transformation (Benefit)</strong>
+                        <p>"Now she's lost 20 pounds and has more energy than ever. You can too."</p>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevSlide()">Previous</button>
+                <div class="progress-dots"></div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 10: CTAs -->
+        <div class="slide" data-slide="10">
+            <div class="slide-header">
+                <div class="slide-number">SECTION 3: AD COPYWRITING TECHNIQUES</div>
+                <h2>Crafting Clear & Compelling CTAs</h2>
+            </div>
+            <div class="slide-content">
+                <p class="hero-text">
+                    Your Call-to-Action is where conversions happen. A weak CTA wastes everything else you've done right. Make it <span class="highlight">impossible to ignore</span>.
+                </p>
+
+                <h3>CTA Best Practices</h3>
+
+                <div class="content-grid">
+                    <div class="feature-box">
+                        <strong>🎯 Be Specific</strong>
+                        <p>Bad: "Click Here"<br>Good: "Get My Free Guide"<br>People want to know exactly what they're getting</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>⚡ Create Urgency</strong>
+                        <p>Bad: "Sign Up"<br>Good: "Claim Your Spot Before Midnight"<br>Time-sensitive language drives immediate action</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>💡 Use Action Verbs</strong>
+                        <p>Start with commanding verbs: Get, Start, Discover, Unlock, Claim, Download, Join, Reserve</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>🎁 Emphasize Value</strong>
+                        <p>Bad: "Submit"<br>Good: "Start Saving Money Today"<br>Remind them of the benefit they'll receive</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>🚫 Remove Risk</strong>
+                        <p>Add: "No Credit Card Required," "100% Free," "Cancel Anytime"<br>Address hesitation directly</p>
+                    </div>
+                    <div class="feature-box">
+                        <strong>📏 Keep It Short</strong>
+                        <p>2-5 words is ideal. Long CTAs dilute urgency and impact</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">High-Converting CTA Examples</h3>
+
+                <div class="example-ad">
+                    <div class="ad-headline">Transform Your Body in 90 Days</div>
+                    <div class="ad-body">Join thousands who've lost weight and gained confidence with our proven program. No gym required.</div>
+                    <button class="ad-cta">Start Your Free Trial →</button>
+                </div>
+
+                <div class="example-ad">
+                    <div class="ad-headline">Your Dream Home Awaits</div>
+                    <div class="ad-body">Browse 1,000+ luxury properties in your area. New listings every day.</div>
+                    <button class="ad-cta">See Homes Now →</button>
+                </div>
+
+                <div class="tip-box">
+                    <strong>🧪 A/B Testing Tip:</strong>
+                    <p>Test different CTAs continuously. Small changes like "Get Started Free" vs "Try It Free" can increase conversions by 20%+. Never stop testing!</p>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevSlide()">Previous</button>
+                <div class="progress-dots"></div>
+                <button class="nav-button" onclick="nextSlide()">Next</button>
+            </div>
+        </div>
+
+        <!-- Slide 11: Summary -->
+        <div class="slide" data-slide="11">
+            <div class="slide-header">
+                <div class="slide-number">CONCLUSION</div>
+                <h2>Creating High-Converting Ads: Key Takeaways</h2>
+            </div>
+            <div class="slide-content">
+                <div class="content-grid">
+                    <div class="card">
+                        <span class="card-icon">🎨</span>
+                        <h3>Design Excellence</h3>
+                        <p>Master visual hierarchy, use psychology principles, and create ads with clear focal points. Remember: simplicity and contrast are your best friends.</p>
+                    </div>
+                    <div class="card">
+                        <span class="card-icon">🛠️</span>
+                        <h3>Right Tools</h3>
+                        <p>Choose tools that match your skill level. Start with Canva, grow into Figma or Adobe. Leverage free stock resources, but invest in premium when budget allows.</p>
+                    </div>
+                    <div class="card">
+                        <span class="card-icon">✍️</span>
+                        <h3>Compelling Copy</h3>
+                        <p>Use proven headline formulas, tap into emotional triggers, tell stories, and craft CTAs that drive action. Test, measure, and optimize continuously.</p>
+                    </div>
+                </div>
+
+                <div class="interactive-demo" style="margin-top: 40px;">
+                    <h3 style="margin-top: 0;">Your High-Converting Ad Checklist</h3>
+                    <ul class="checklist">
+                        <li>Clear, benefit-driven headline that hooks in 3 seconds or less</li>
+                        <li>High-quality, relevant imagery that supports your message</li>
+                        <li>Strategic use of color and contrast to guide the eye</li>
+                        <li>Social proof, urgency, or psychological trigger included</li>
+                        <li>Body text that focuses on benefits, not features</li>
+                        <li>Specific, action-oriented CTA with value emphasis</li>
+                        <li>Mobile-optimized design (70%+ traffic is mobile)</li>
+                        <li>Risk reversal (guarantee, free trial, no credit card)</li>
+                        <li>Tested across multiple platforms and formats</li>
+                        <li>Tracking and analytics set up to measure performance</li>
+                    </ul>
+                </div>
+
+                <div class="tip-box" style="margin-top: 30px;">
+                    <strong>🚀 Final Wisdom:</strong>
+                    <p>The best ad is the one that converts, not the prettiest one. Test everything, learn from data, iterate constantly. Your first ad won't be perfect—but your 50th will be incredible. Keep creating, keep testing, keep improving!</p>
+                </div>
+
+                <div class="stats-box" style="margin-top: 30px;">
+                    <div class="stat-item">
+                        <div class="stat-number">10x</div>
+                        <div class="stat-label">ROI Possible</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">A/B</div>
+                        <div class="stat-label">Always Test</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">3s</div>
+                        <div class="stat-label">Hook Window</div>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevSlide()">Previous</button>
+                <div class="progress-dots"></div>
+                <button class="nav-button" onclick="nextSlide()" disabled>Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 11;
+
+        function showSlide(slideNumber) {
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            const targetSlide = document.querySelector(`[data-slide="${slideNumber}"]`);
+            if (targetSlide) {
+                targetSlide.classList.add('active');
+                currentSlide = slideNumber;
+                updateNavigation();
+                updateProgressDots();
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        function updateNavigation() {
+            const prevButtons = document.querySelectorAll('.navigation button:first-child');
+            const nextButtons = document.querySelectorAll('.navigation button:last-child');
+            
+            prevButtons.forEach(btn => {
+                btn.disabled = currentSlide === 1;
+            });
+            
+            nextButtons.forEach(btn => {
+                btn.disabled = currentSlide === totalSlides;
+            });
+        }
+
+        function updateProgressDots() {
+            const dotsContainers = document.querySelectorAll('.progress-dots');
+            dotsContainers.forEach(container => {
+                container.innerHTML = '';
+                for (let i = 1; i <= totalSlides; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'dot';
+                    if (i === currentSlide) {
+                        dot.classList.add('active');
+                    }
+                    dot.onclick = () => showSlide(i);
+                    dot.title = `Slide ${i}`;
+                    container.appendChild(dot);
+                }
+            });
+        }
+
+        function toggleTool(level) {
+            // Update button states
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update content visibility
+            document.querySelectorAll('.toggle-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(level).classList.add('active');
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Initialize
+        updateProgressDots();
+        updateNavigation();
+
+        // Add dynamic interactions
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Animate stats on view
+        const observerOptions = {
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'float 3s ease-in-out infinite';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.stat-item').forEach(stat => {
+            observer.observe(stat);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LU3-PPC Advertising - Facebook Ads</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════
+   RESET & ROOT
+   ═══════════════════════════════════════════════ */
+:root {
+  --fb:       #1877F2;
+  --fb-lt:    #1B5FC4;
+  --fb-dim:   rgba(24,119,242,0.18);
+  --fb-glow:  rgba(24,119,242,0.35);
+  --cream:    #F5F0EB;
+  --ink:      #1A1A2E;
+  --ink-mid:  #2C2C45;
+  --sand:     #E8DFD4;
+  --rust:     #C75B3A;
+  --teal:     #2CB67A;
+  --amber:    #F6A623;
+  --rose:     #E84393;
+  --muted:    #7A7A9A;
+  --shadow:   0 8px 40px rgba(0,0,0,0.12);
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+  font-family:'Outfit',sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  overflow:hidden;
+  height:100vh; width:100vw;
+  user-select:none;
+}
+
+/* ─── GRAIN OVERLAY ─── */
+body::after{
+  content:'';
+  position:fixed; inset:0; z-index:999; pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity:0.6;
+}
+
+/* ─── TOP BAR ─── */
+#topbar{
+  position:fixed; top:0; left:0; right:0; height:52px;
+  background:rgba(245,240,235,0.92); backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(26,26,46,0.08);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 32px; z-index:200;
+}
+#topbar .logo{ display:flex; align-items:center; gap:10px; }
+#topbar .fb-icon{
+  width:32px; height:32px; background:var(--fb); border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-weight:700; font-size:18px; font-family:serif;
+}
+#topbar .brand{ font-weight:600; font-size:15px; color:var(--ink); }
+#topbar .brand span{ color:var(--fb); }
+
+/* progress track */
+#prog-track{
+  flex:1; max-width:380px; height:4px;
+  background:var(--sand); border-radius:2px; overflow:hidden;
+}
+#prog-fill{
+  height:100%; width:0%; border-radius:2px;
+  background:linear-gradient(90deg, var(--fb), var(--teal));
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+#topbar .counter{ font-size:13px; color:var(--muted); font-weight:500; }
+#topbar .counter em{ color:var(--fb); font-style:normal; font-weight:700; }
+
+/* ─── SIDE NAV DOTS ─── */
+#sidedots{
+  position:fixed; right:22px; top:50%; transform:translateY(-50%);
+  display:flex; flex-direction:column; gap:10px; z-index:200;
+}
+.sdot{
+  width:9px; height:9px; border-radius:50%;
+  background:var(--sand); border:none; cursor:pointer;
+  transition:background .3s, transform .3s, box-shadow .3s;
+}
+.sdot.on{ background:var(--fb); transform:scale(1.4); box-shadow:0 0 8px var(--fb-glow); }
+.sdot:hover{ background:var(--fb-lt); }
+
+/* ─── ARROW BTNS ─── */
+.nav-arrow{
+  position:fixed; bottom:24px; z-index:200;
+  width:46px; height:46px; border-radius:12px;
+  background:#fff; border:1px solid rgba(0,0,0,0.08);
+  box-shadow:var(--shadow); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; color:var(--ink);
+  transition:background .2s, box-shadow .2s, transform .15s;
+}
+.nav-arrow:hover{ background:var(--fb); color:#fff; box-shadow:0 4px 20px var(--fb-glow); transform:scale(1.05); }
+#nav-prev{ left:24px; }
+#nav-next{ left:78px; }
+
+/* ═══════════════════════════════════════════════
+   SLIDES SHELL
+   ═══════════════════════════════════════════════ */
+#deck{ position:relative; width:100vw; height:100vh; }
+
+.slide{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:68px 48px 60px;
+  opacity:0; transform:scale(0.96) translateY(18px);
+  transition:opacity .5s cubic-bezier(.4,0,.2,1), transform .5s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+}
+.slide.on{ opacity:1; transform:scale(1) translateY(0); pointer-events:auto; }
+
+/* ═══════════════════════════════════════════════
+   TITLE SLIDE  (0)
+   ═══════════════════════════════════════════════ */
+.title-slide{ background:var(--ink); justify-content:center; align-items:center; }
+
+/* animated rings */
+.ring-wrap{
+  position:absolute; width:520px; height:520px;
+  top:50%; left:50%; transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+.ring{
+  position:absolute; border-radius:50%;
+  border:1px solid rgba(24,119,242,0.2);
+  top:50%; left:50%; transform:translate(-50%,-50%);
+}
+.ring:nth-child(1){ width:260px; height:260px; animation:spin 30s linear infinite; }
+.ring:nth-child(2){ width:370px; height:370px; border-color:rgba(24,119,242,0.12); animation:spin 50s linear infinite reverse; }
+.ring:nth-child(3){ width:480px; height:480px; border-color:rgba(24,119,242,0.07); animation:spin 70s linear infinite; }
+@keyframes spin{ to{ transform:translate(-50%,-50%) rotate(360deg); } }
+
+.title-content{ position:relative; z-index:2; text-align:center; }
+.title-content .eyebrow{
+  font-size:13px; letter-spacing:3.5px; text-transform:uppercase;
+  color:var(--fb); margin-bottom:20px; font-weight:500;
+}
+.title-content h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(56px,10vw,108px); line-height:0.95;
+  color:#fff; letter-spacing:2px; margin-bottom:28px;
+}
+.title-content h1 span{ color:var(--fb); }
+.title-content .sub{
+  font-size:17px; color:rgba(255,255,255,0.5); max-width:520px; line-height:1.6;
+}
+.title-content .hint{
+  margin-top:42px; font-size:12px; color:rgba(255,255,255,0.3);
+  letter-spacing:1px; animation:blink 2.2s infinite;
+}
+@keyframes blink{ 0%,100%{opacity:.3} 50%{opacity:.85} }
+
+/* ═══════════════════════════════════════════════
+   SECTION DIVIDER
+   ═══════════════════════════════════════════════ */
+.sec-slide{ background:var(--ink); }
+.sec-bg-num{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-54%);
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(140px,26vw,260px); line-height:1;
+  color:rgba(24,119,242,0.07); pointer-events:none; letter-spacing:-8px;
+}
+.sec-content{ position:relative; z-index:2; text-align:center; }
+.sec-content .pill{
+  display:inline-block; padding:5px 18px; border-radius:20px;
+  background:var(--fb-dim); border:1px solid rgba(24,119,242,0.3);
+  font-size:11px; letter-spacing:2.5px; text-transform:uppercase;
+  color:var(--fb); margin-bottom:18px; font-weight:600;
+}
+.sec-content h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(40px,7vw,68px); color:#fff;
+  letter-spacing:1.5px; line-height:1.05; margin-bottom:16px;
+}
+.sec-content p{ font-size:16px; color:rgba(255,255,255,0.45); max-width:540px; line-height:1.6; }
+
+/* ═══════════════════════════════════════════════
+   CONTENT SLIDES (light bg)
+   ═══════════════════════════════════════════════ */
+.content-slide{ background:var(--cream); }
+
+.slide-header{ width:100%; max-width:920px; margin-bottom:28px; }
+.slide-header .tag{
+  display:inline-block; padding:4px 14px; border-radius:14px;
+  background:var(--fb-dim); font-size:11px; letter-spacing:1.8px;
+  text-transform:uppercase; color:var(--fb); font-weight:600; margin-bottom:10px;
+}
+.slide-header h2{ font-family:'Bebas Neue',sans-serif; font-size:clamp(28px,4.2vw,40px); color:var(--ink); letter-spacing:1px; }
+
+/* ─── CARD GRID ─── */
+.cgrid{ display:grid; gap:16px; width:100%; max-width:920px; }
+.cgrid.c3{ grid-template-columns:repeat(3,1fr); }
+.cgrid.c2{ grid-template-columns:repeat(2,1fr); }
+
+.ccard{
+  background:#fff; border-radius:18px; padding:24px 22px;
+  border:1px solid rgba(26,26,46,0.07);
+  box-shadow:0 2px 12px rgba(0,0,0,0.04);
+  transition:transform .25s, box-shadow .25s, border-color .3s;
+  position:relative; overflow:hidden;
+}
+.ccard::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:var(--card-top, var(--fb)); border-radius:18px 18px 0 0;
+}
+.ccard:hover{ transform:translateY(-3px); box-shadow:0 8px 28px rgba(0,0,0,0.1); border-color:rgba(24,119,242,0.2); }
+.ccard.top-fb    { --card-top:var(--fb); }
+.ccard.top-teal  { --card-top:var(--teal); }
+.ccard.top-rust  { --card-top:var(--rust); }
+.ccard.top-amber { --card-top:var(--amber); }
+.ccard.top-rose  { --card-top:var(--rose); }
+
+.ccard .icon-wrap{
+  width:40px; height:40px; border-radius:11px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:19px; margin-bottom:14px;
+}
+.icon-fb   { background:rgba(24,119,242,0.1); }
+.icon-teal { background:rgba(44,182,122,0.12); }
+.icon-rust { background:rgba(199,91,58,0.12); }
+.icon-amber{ background:rgba(246,166,35,0.12); }
+.icon-rose { background:rgba(232,67,147,0.12); }
+
+.ccard h3{ font-size:16px; font-weight:600; color:var(--ink); margin-bottom:6px; }
+.ccard p { font-size:13.5px; color:var(--muted); line-height:1.55; }
+
+/* ─── STEPS ─── */
+.steplist{ list-style:none; display:flex; flex-direction:column; gap:14px; max-width:600px; width:100%; }
+.steplist li{ display:flex; gap:16px; align-items:flex-start; }
+.step-badge{
+  min-width:34px; height:34px; border-radius:10px;
+  background:var(--fb); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:15px; flex-shrink:0;
+}
+.step-txt h4{ font-size:15px; font-weight:600; color:var(--ink); margin-bottom:2px; }
+.step-txt p { font-size:13px; color:var(--muted); line-height:1.5; }
+
+/* ─── HIGHLIGHT BOX ─── */
+.highlight{
+  background:linear-gradient(135deg,rgba(24,119,242,0.06),rgba(44,182,122,0.04));
+  border:1px solid rgba(24,119,242,0.15); border-radius:16px;
+  padding:20px 22px; width:100%; max-width:920px;
+}
+.highlight h4{ font-size:15px; font-weight:600; color:var(--fb); margin-bottom:6px; }
+.highlight p { font-size:14px; color:var(--ink-mid); line-height:1.6; }
+
+/* ═══════════════════════════════════════════════
+   INTERACTIVE: TARGETING WHEEL  (slide 6)
+   ═══════════════════════════════════════════════ */
+.target-wrap{ display:flex; gap:36px; align-items:center; width:100%; max-width:920px; }
+.target-wheel-box{ flex-shrink:0; width:280px; height:280px; position:relative; }
+.tw-ring{
+  position:absolute; inset:0;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:filter .3s;
+}
+.tw-ring:hover{ filter:brightness(1.15); }
+.tw-ring.outer{ background:conic-gradient(var(--fb) 0deg 90deg, var(--teal) 90deg 180deg, var(--rust) 180deg 270deg, var(--amber) 270deg 360deg); }
+.tw-ring.inner{
+  width:62%; height:62%; background:#fff;
+  box-shadow:0 0 0 4px rgba(24,119,242,0.15);
+  flex-direction:column; gap:2px;
+}
+.tw-ring.inner .fb-f{ font-weight:900; font-size:28px; color:var(--fb); font-family:serif; }
+.tw-ring.inner .fb-label{ font-size:10px; color:var(--muted); letter-spacing:1.2px; text-transform:uppercase; }
+
+.tw-seg{
+  position:absolute; width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+.tw-seg .seg-label{
+  background:#fff; border-radius:8px; padding:4px 10px;
+  font-size:11px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  white-space:nowrap;
+}
+.tw-seg:nth-child(2) .seg-label{ top:12%; transform:translateX(-50%); color:var(--fb); }
+.tw-seg:nth-child(3) .seg-label{ right:-2%; top:50%; transform:translateY(-50%); color:var(--teal); }
+.tw-seg:nth-child(4) .seg-label{ bottom:12%; transform:translateX(-50%); color:var(--rust); }
+.tw-seg:nth-child(5) .seg-label{ left:-8%; top:50%; transform:translateY(-50%); color:var(--amber); }
+
+.target-details{ flex:1; }
+.target-details .td-item{
+  display:flex; align-items:flex-start; gap:14px;
+  padding:12px 0; border-bottom:1px solid var(--sand);
+  cursor:pointer; transition:background .2s;
+}
+.target-details .td-item:last-child{ border-bottom:none; }
+.target-details .td-item:hover{ background:var(--fb-dim); border-radius:10px; padding-left:10px; }
+.td-dot{ width:12px; height:12px; border-radius:3px; flex-shrink:0; margin-top:3px; }
+.td-item h4{ font-size:14px; font-weight:600; color:var(--ink); margin-bottom:2px; }
+.td-item p { font-size:13px; color:var(--muted); line-height:1.45; }
+
+/* ═══════════════════════════════════════════════
+   INTERACTIVE: AD CREATIVE BUILDER  (slide 7)
+   ═══════════════════════════════════════════════ */
+.creative-wrap{ display:flex; gap:30px; align-items:flex-start; width:100%; max-width:920px; }
+.creative-preview{
+  width:300px; flex-shrink:0; background:#fff; border-radius:20px;
+  border:1px solid rgba(0,0,0,0.07); overflow:hidden;
+  box-shadow:0 4px 24px rgba(0,0,0,0.08);
+  transition:box-shadow .3s;
+}
+.creative-preview:hover{ box-shadow:0 8px 36px rgba(0,0,0,0.14); }
+.cp-img{
+  width:100%; height:170px;
+  background:linear-gradient(135deg, var(--fb), var(--fb-lt));
+  display:flex; align-items:center; justify-content:center;
+  font-size:52px; position:relative; overflow:hidden;
+}
+.cp-img .cp-overlay{
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.3));
+}
+.cp-img .cp-emoji{ position:relative; z-index:2; }
+.cp-body{ padding:16px; }
+.cp-body .cp-headline{ font-weight:700; font-size:16px; color:var(--ink); margin-bottom:6px; line-height:1.3; min-height:42px; transition:color .2s; }
+.cp-body .cp-desc{ font-size:13px; color:var(--muted); line-height:1.5; margin-bottom:12px; min-height:40px; }
+.cp-body .cp-cta{
+  display:inline-block; background:var(--fb); color:#fff;
+  padding:8px 20px; border-radius:8px; font-size:13px; font-weight:600;
+  transition:background .2s; cursor:default;
+}
+.cp-cta:hover{ background:var(--fb-lt); }
+
+.creative-opts{ flex:1; }
+.creative-opts .opt-group{ margin-bottom:16px; }
+.creative-opts .opt-label{ font-size:12px; font-weight:600; color:var(--ink); letter-spacing:0.8px; margin-bottom:8px; text-transform:uppercase; }
+.opt-pills{ display:flex; flex-wrap:wrap; gap:8px; }
+.opt-pill{
+  padding:6px 14px; border-radius:18px; font-size:13px;
+  border:1.5px solid var(--sand); background:#fff; cursor:pointer;
+  color:var(--ink-mid); font-weight:500;
+  transition:all .2s;
+}
+.opt-pill:hover{ border-color:var(--fb); color:var(--fb); }
+.opt-pill.sel{ background:var(--fb); color:#fff; border-color:var(--fb); }
+
+/* ═══════════════════════════════════════════════
+   INTERACTIVE: BUDGET SIMULATOR (slide 10)
+   ═══════════════════════════════════════════════ */
+.budget-wrap{ display:flex; gap:36px; align-items:flex-start; width:100%; max-width:920px; }
+.budget-panel{ flex:1; background:#fff; border-radius:18px; padding:24px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 2px 12px rgba(0,0,0,0.04); }
+.budget-panel h3{ font-size:15px; font-weight:600; color:var(--ink); margin-bottom:16px; }
+.slider-row{ margin-bottom:18px; }
+.slider-row label{ font-size:13px; color:var(--muted); display:flex; justify-content:space-between; margin-bottom:6px; }
+.slider-row label em{ color:var(--fb); font-style:normal; font-weight:700; font-size:14px; }
+input[type=range]{
+  -webkit-appearance:none; width:100%; height:6px;
+  background:var(--sand); border-radius:3px; outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+  background:var(--fb); cursor:pointer;
+  box-shadow:0 2px 8px var(--fb-glow);
+  transition:transform .15s;
+}
+input[type=range]::-webkit-slider-thumb:hover{ transform:scale(1.15); }
+
+.budget-results{ flex-shrink:0; width:260px; }
+.br-card{
+  background:#fff; border-radius:16px; padding:18px 20px;
+  border:1px solid rgba(0,0,0,0.07); margin-bottom:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.04);
+}
+.br-card .br-label{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.br-card .br-val{ font-family:'Bebas Neue',sans-serif; font-size:32px; color:var(--fb); letter-spacing:0.5px; }
+.br-card .br-sub{ font-size:12px; color:var(--teal); margin-top:2px; font-weight:500; }
+
+/* ═══════════════════════════════════════════════
+   INTERACTIVE: KPI DASHBOARD (slide 13)
+   ═══════════════════════════════════════════════ */
+.kpi-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; width:100%; max-width:920px; }
+.kpi-box{
+  background:#fff; border-radius:16px; padding:18px 16px; text-align:center;
+  border:1px solid rgba(0,0,0,0.06); box-shadow:0 2px 10px rgba(0,0,0,0.04);
+  position:relative; overflow:hidden; cursor:pointer;
+  transition:transform .2s, box-shadow .25s;
+}
+.kpi-box:hover{ transform:translateY(-2px); box-shadow:0 6px 22px rgba(0,0,0,0.1); }
+.kpi-box .kpi-stripe{
+  position:absolute; top:0; left:0; right:0; height:4px;
+}
+.kpi-box .kpi-label{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.kpi-box .kpi-val{ font-family:'Bebas Neue',sans-serif; font-size:34px; letter-spacing:0.5px; }
+.kpi-box .kpi-trend{ font-size:12px; margin-top:4px; font-weight:600; }
+.kpi-box .kpi-bar{
+  width:100%; height:4px; background:var(--sand); border-radius:2px;
+  margin-top:10px; overflow:hidden;
+}
+.kpi-box .kpi-fill{
+  height:100%; border-radius:2px;
+  transition:width 1.2s cubic-bezier(.4,0,.2,1);
+}
+
+/* ═══════════════════════════════════════════════
+   INTERACTIVE: A/B TEST SIMULATOR (slide 14)
+   ═══════════════════════════════════════════════ */
+.ab-wrap{ display:flex; gap:24px; width:100%; max-width:920px; align-items:flex-start; }
+.ab-card{
+  flex:1; background:#fff; border-radius:18px; overflow:hidden;
+  border:2px solid transparent; box-shadow:0 2px 14px rgba(0,0,0,0.06);
+  transition:border-color .3s, box-shadow .3s, transform .25s;
+  cursor:pointer;
+}
+.ab-card:hover{ transform:translateY(-2px); }
+.ab-card.winner{ border-color:var(--teal); box-shadow:0 4px 24px rgba(44,182,122,0.25); }
+.ab-card .ab-header{
+  padding:14px 18px; display:flex; align-items:center; justify-content:space-between;
+}
+.ab-card .ab-badge{
+  font-size:13px; font-weight:700; padding:4px 12px; border-radius:8px;
+}
+.ab-card .ab-win-badge{
+  font-size:11px; padding:3px 10px; border-radius:6px;
+  background:rgba(44,182,122,0.12); color:var(--teal); font-weight:600;
+  display:none;
+}
+.ab-card.winner .ab-win-badge{ display:inline-block; }
+
+.ab-card .ab-preview{
+  margin:0 18px; height:100px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px; font-weight:600; color:#fff;
+}
+.ab-card .ab-stats{ padding:14px 18px 18px; }
+.ab-card .ab-stats .ab-row{
+  display:flex; justify-content:space-between;
+  font-size:13px; padding:5px 0; border-bottom:1px solid var(--sand);
+}
+.ab-card .ab-stats .ab-row:last-child{ border-bottom:none; }
+.ab-card .ab-stats .ab-row span:first-child{ color:var(--muted); }
+.ab-card .ab-stats .ab-row span:last-child{ font-weight:600; color:var(--ink); }
+
+.ab-run-btn{
+  display:block; margin:16px auto 0; padding:10px 32px;
+  background:var(--fb); color:#fff; border:none; border-radius:10px;
+  font-size:14px; font-weight:600; cursor:pointer;
+  font-family:'Outfit',sans-serif;
+  transition:background .2s, transform .15s;
+}
+.ab-run-btn:hover{ background:var(--fb-lt); transform:scale(1.03); }
+
+/* ═══════════════════════════════════════════════
+   INTERACTIVE: FUNNEL ANIMATION (slide 12)
+   ═══════════════════════════════════════════════ */
+.funnel-wrap{ display:flex; gap:40px; align-items:center; width:100%; max-width:920px; }
+.funnel-svg-box{ flex-shrink:0; width:260px; }
+.funnel-legend{ flex:1; }
+.funnel-item{
+  display:flex; align-items:center; gap:14px;
+  padding:10px 14px; border-radius:10px; margin-bottom:8px;
+  background:rgba(0,0,0,0.02); cursor:pointer;
+  transition:background .2s;
+}
+.funnel-item:hover{ background:var(--fb-dim); }
+.funnel-item .fi-color{ width:14px; height:14px; border-radius:4px; flex-shrink:0; }
+.funnel-item .fi-text h4{ font-size:14px; font-weight:600; color:var(--ink); }
+.funnel-item .fi-text p { font-size:12px; color:var(--muted); }
+.funnel-item .fi-num{ font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--ink); margin-left:auto; }
+
+/* ═══════════════════════════════════════════════
+   END SLIDE (16)
+   ═══════════════════════════════════════════════ */
+.end-slide{ background:var(--ink); }
+.end-content{ position:relative; z-index:2; text-align:center; }
+.end-content h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(44px,8vw,82px); color:#fff;
+  letter-spacing:2px; line-height:1; margin-bottom:20px;
+}
+.end-content h1 span{ color:var(--fb); }
+.end-content p{ font-size:17px; color:rgba(255,255,255,0.45); max-width:520px; line-height:1.6; }
+.end-dots{ display:flex; gap:10px; justify-content:center; margin-top:36px; }
+.end-dots span{ width:14px; height:14px; border-radius:50%; }
+
+/* ═══════════════════════════════════════════════
+   STAGGERED ENTRANCE ANIMS
+   ═══════════════════════════════════════════════ */
+.slide.on .ccard { animation:cardUp .45s cubic-bezier(.4,0,.2,1) both; }
+.slide.on .ccard:nth-child(1){animation-delay:.06s}
+.slide.on .ccard:nth-child(2){animation-delay:.13s}
+.slide.on .ccard:nth-child(3){animation-delay:.20s}
+.slide.on .ccard:nth-child(4){animation-delay:.27s}
+
+.slide.on .steplist li{ animation:cardUp .45s cubic-bezier(.4,0,.2,1) both; }
+.slide.on .steplist li:nth-child(1){animation-delay:.08s}
+.slide.on .steplist li:nth-child(2){animation-delay:.17s}
+.slide.on .steplist li:nth-child(3){animation-delay:.26s}
+.slide.on .steplist li:nth-child(4){animation-delay:.35s}
+
+.slide.on .kpi-box{ animation:cardUp .5s cubic-bezier(.4,0,.2,1) both; }
+.slide.on .kpi-box:nth-child(1){animation-delay:.05s}
+.slide.on .kpi-box:nth-child(2){animation-delay:.14s}
+.slide.on .kpi-box:nth-child(3){animation-delay:.23s}
+.slide.on .kpi-box:nth-child(4){animation-delay:.32s}
+
+@keyframes cardUp{
+  from{ opacity:0; transform:translateY(20px); }
+  to  { opacity:1; transform:translateY(0); }
+}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:820px){
+  .cgrid.c3{ grid-template-columns:1fr 1fr; }
+  .target-wrap,.creative-wrap,.budget-wrap,.funnel-wrap,.ab-wrap{ flex-direction:column; }
+  .kpi-grid{ grid-template-columns:1fr 1fr; }
+  .slide{ padding:68px 24px 56px; }
+}
+@media(max-width:520px){
+  .cgrid.c3,.cgrid.c2,.kpi-grid{ grid-template-columns:1fr; }
+  .creative-preview,.target-wheel-box,.funnel-svg-box{ width:100%; max-width:260px; }
+}
+
+/* ─── TABLE (bidding) ─── */
+.bid-table{ width:100%; max-width:920px; border-radius:16px; overflow:hidden; border:1px solid rgba(0,0,0,0.07); background:#fff; }
+.bid-table thead{ background:var(--fb-dim); }
+.bid-table th{ padding:12px 16px; text-align:left; font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--fb); font-weight:600; border-bottom:1px solid rgba(0,0,0,0.06); }
+.bid-table td{ padding:13px 16px; font-size:14px; color:var(--ink-mid); border-bottom:1px solid rgba(0,0,0,0.05); }
+.bid-table tr:last-child td{ border-bottom:none; }
+.bid-table tr:hover td{ background:rgba(24,119,242,0.04); }
+.badge{ display:inline-block; padding:3px 10px; border-radius:10px; font-size:12px; font-weight:600; }
+.b-fb   { background:rgba(24,119,242,0.12); color:var(--fb); }
+.b-teal { background:rgba(44,182,122,0.12); color:var(--teal); }
+.b-rust { background:rgba(199,91,58,0.12); color:var(--rust); }
+.b-amber{ background:rgba(246,166,35,0.12); color:var(--amber); }
+.b-rose { background:rgba(232,67,147,0.12); color:var(--rose); }
+</style>
+</head>
+<body>
+
+<!-- ─── TOP BAR ─── -->
+<div id="topbar">
+  <div class="logo">
+    <div class="fb-icon">f</div>
+    <div class="brand"><span>Facebook</span> Ads PPC</div>
+  </div>
+  <div id="prog-track"><div id="prog-fill"></div></div>
+  <div class="counter"><em id="curNum">1</em> / <span id="totNum"></span></div>
+</div>
+
+<!-- ─── SIDE DOTS ─── -->
+<div id="sidedots"></div>
+
+<!-- ─── NAV ARROWS ─── -->
+<button class="nav-arrow" id="nav-prev">&#8592;</button>
+<button class="nav-arrow" id="nav-next">&#8594;</button>
+
+<!-- ═══════════════════════════════════════════════
+     DECK
+     ═══════════════════════════════════════════════ -->
+<div id="deck">
+
+<!-- ▸ 0  TITLE ─────────────────────────────────── -->
+<div class="slide title-slide on" data-i="0">
+  <div class="ring-wrap">
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+  </div>
+  <div class="title-content">
+    <p class="eyebrow">A Complete Guide</p>
+    <h1>LU3: PAY-PER-CLICK<br><span>FACEBOOK ADS</span></h1>
+    <p class="sub">From first click to optimised conversion — master the art of running profitable ad campaigns on Meta's advertising platform.</p>
+    <p class="hint">Press → or click a dot to continue</p>
+  </div>
+</div>
+
+<!-- ▸ 1  SECTION 01 ─────────────────────────────── -->
+<div class="slide sec-slide" data-i="1">
+  <span class="sec-bg-num">01</span>
+  <div class="sec-content">
+    <span class="pill">Section One</span>
+    <h2>Introduction TO<br>FACEBOOK ADS</h2>
+    <p>Understand what Facebook Ads is, how to set up your account, and navigate the powerful Ads Manager interface.</p>
+  </div>
+</div>
+
+<!-- ▸ 2  OVERVIEW ───────────────────────────────── -->
+<div class="slide content-slide" data-i="2">
+  <div class="slide-header">
+    <span class="tag">Overview</span>
+    <h2>What Are Facebook Ads?</h2>
+  </div>
+  <div class="cgrid c3">
+    <div class="ccard top-fb">
+      <div class="icon-wrap icon-fb">📱</div>
+      <h3>Social Feed Ads</h3>
+      <p>Native ads woven into News Feed, Instagram Feed, and Stories — users engage naturally with content that feels like organic posts.</p>
+    </div>
+    <div class="ccard top-teal">
+      <div class="icon-wrap icon-teal">🎯</div>
+      <h3>Hyper-Targeting</h3>
+      <p>Target by age, interests, behaviours, life events, lookalike audiences and more. No other platform matches this depth.</p>
+    </div>
+    <div class="ccard top-rust">
+      <div class="icon-wrap icon-rust">📊</div>
+      <h3>Multi-Format</h3>
+      <p>Carousel, video, collection, instant experience, lead forms — choose the format that best showcases your product.</p>
+    </div>
+  </div>
+  <div class="highlight" style="margin-top:18px;">
+    <h4>💡 Why Facebook Ads for PPC?</h4>
+    <p>With over 3.9 billion monthly active users across Meta's family of apps, Facebook Ads delivers unmatched reach. Pay-per-click on social lets you test creatives rapidly, scale winners, and retarget with precision.</p>
+  </div>
+</div>
+
+<!-- ▸ 3  SETUP ───────────────────────────────────── -->
+<div class="slide content-slide" data-i="3">
+  <div class="slide-header">
+    <span class="tag">Getting Started</span>
+    <h2>Setting Up Ads Manager</h2>
+  </div>
+  <div style="display:flex;gap:36px;width:100%;max-width:920px;align-items:flex-start;">
+    <ul class="steplist">
+      <li>
+        <span class="step-badge">1</span>
+        <div class="step-txt">
+          <h4>Create a Facebook Business Account</h4>
+          <p>Go to business.facebook.com and sign in with your personal FB account. Set up your business name, address, and time zone.</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-badge">2</span>
+        <div class="step-txt">
+          <h4>Create a Facebook Page</h4>
+          <p>Your Page is the "sender" of your ads. Set up a professional Page for your brand — this builds trust and credibility.</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-badge">3</span>
+        <div class="step-txt">
+          <h4>Set Up Payment Method</h4>
+          <p>Add a credit card or PayPal. Facebook charges based on your chosen bid strategy — set a spending limit for safety.</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-badge">4</span>
+        <div class="step-txt">
+          <h4>Install the Facebook Pixel</h4>
+          <p>Add the Pixel code to your website before running any ads. This is the foundation of conversion tracking and retargeting.</p>
+        </div>
+      </li>
+    </ul>
+    <div class="ccard top-fb" style="flex:0 0 240px;align-self:center;">
+      <div class="icon-wrap icon-fb">🔐</div>
+      <h3>Pro Tip</h3>
+      <p>Enable Two-Factor Authentication on your business account immediately. Ad accounts are high-value targets — protect yours from day one.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ▸ 4  INTERFACE ──────────────────────────────── -->
+<div class="slide content-slide" data-i="4">
+  <div class="slide-header">
+    <span class="tag">Navigation</span>
+    <h2>The Ads Manager Interface</h2>
+  </div>
+  <div class="cgrid c2" style="max-width:920px;">
+    <div class="ccard top-fb">
+      <div class="icon-wrap icon-fb">📋</div>
+      <h3>Campaign Overview</h3>
+      <p>The central hub — see all active campaigns, their status, spend, results, and performance trends in a single organised view.</p>
+    </div>
+    <div class="ccard top-teal">
+      <div class="icon-wrap icon-teal">📐</div>
+      <h3>Ad Creation Flow</h3>
+      <p>The guided 3-step flow: <strong>Campaign → Ad Set → Ad</strong>. Each level controls a different layer of your campaign strategy.</p>
+    </div>
+    <div class="ccard top-amber">
+      <div class="icon-wrap icon-amber">📈</div>
+      <h3>Reporting Dashboard</h3>
+      <p>Customisable columns, breakdowns by age/gender/placement, and export-ready reports let you analyse performance deeply.</p>
+    </div>
+    <div class="ccard top-rose">
+      <div class="icon-wrap icon-rose">🔧</div>
+      <h3>Audience Insights</h3>
+      <p>Explore your target audience's demographics, interests, and behaviours before spending a single dollar on ads.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ▸ 5  SECTION 02 ─────────────────────────────── -->
+<div class="slide sec-slide" data-i="5">
+  <span class="sec-bg-num">02</span>
+  <div class="sec-content">
+    <span class="pill">Section Two</span>
+    <h2>CREATING EFFECTIVE<br>CAMPAIGNS</h2>
+    <p>Master targeting, design scroll-stopping creatives, and write copy that converts — all interactively.</p>
+  </div>
+</div>
+
+<!-- ▸ 6  TARGETING (Interactive Wheel) ──────────── -->
+<div class="slide content-slide" data-i="6">
+  <div class="slide-header">
+    <span class="tag">Interactive</span>
+    <h2>Targeting Options</h2>
+  </div>
+  <div class="target-wrap">
+    <div class="target-wheel-box">
+      <div class="tw-ring outer"></div>
+      <div class="tw-ring inner">
+        <span class="fb-f">f</span>
+        <span class="fb-label">Target</span>
+      </div>
+      <div class="tw-seg" style="position:absolute;top:0;left:50%;transform:translateX(-50%);"><span class="seg-label" style="color:var(--fb);background:#fff;">Demographics</span></div>
+      <div class="tw-seg" style="position:absolute;right:-10px;top:50%;transform:translateY(-50%);"><span class="seg-label" style="color:var(--teal);background:#fff;">Interests</span></div>
+      <div class="tw-seg" style="position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);"><span class="seg-label" style="color:var(--rust);background:#fff;">Behaviours</span></div>
+      <div class="tw-seg" style="position:absolute;left:-30px;top:50%;transform:translateY(-50%);"><span class="seg-label" style="color:var(--amber);background:#fff;">Custom</span></div>
+    </div>
+    <div class="target-details">
+      <div class="td-item"><div class="td-dot" style="background:var(--fb)"></div><div><h4>Demographics</h4><p>Age, gender, location, education, job title, relationship status — define your audience's profile precisely.</p></div></div>
+      <div class="td-item"><div class="td-dot" style="background:var(--teal)"></div><div><h4>Interests & Behaviours</h4><p>Target by hobbies, page likes, purchase behaviour, device usage, and travel patterns for laser-focused reach.</p></div></div>
+      <div class="td-item"><div class="td-dot" style="background:var(--rust)"></div><div><h4>Custom Audiences</h4><p>Re-engage people who visited your website, used your app, or are on your email list — your warmest leads.</p></div></div>
+      <div class="td-item"><div class="td-dot" style="background:var(--amber)"></div><div><h4>Lookalike Audiences</h4><p>Facebook finds new users who look like your best existing customers — the single most powerful growth tool.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ▸ 7  AD CREATIVES (Interactive Builder) ─────── -->
+<div class="slide content-slide" data-i="7">
+  <div class="slide-header">
+    <span class="tag">Interactive Builder</span>
+    <h2>Designing Ad Creatives</h2>
+  </div>
+  <div class="creative-wrap">
+    <div class="creative-preview">
+      <div class="cp-img">
+        <div class="cp-overlay"></div>
+        <span class="cp-emoji" id="previewEmoji">🛍️</span>
+      </div>
+      <div class="cp-body">
+        <div class="cp-headline" id="previewHeadline">Shop the Summer Sale</div>
+        <div class="cp-desc" id="previewDesc">Up to 60% off on all premium collections. Limited time only.</div>
+        <div class="cp-cta" id="previewCta">Shop Now</div>
+      </div>
+    </div>
+    <div class="creative-opts">
+      <div class="opt-group">
+        <div class="opt-label">Ad Format</div>
+        <div class="opt-pills" id="formatPills">
+          <span class="opt-pill sel" data-key="format" data-val="single">Single Image</span>
+          <span class="opt-pill" data-key="format" data-val="carousel">Carousel</span>
+          <span class="opt-pill" data-key="format" data-val="video">Video</span>
+          <span class="opt-pill" data-key="format" data-val="collection">Collection</span>
+        </div>
+      </div>
+      <div class="opt-group">
+        <div class="opt-label">Headline Style</div>
+        <div class="opt-pills" id="headlinePills">
+          <span class="opt-pill sel" data-key="headline" data-val="promo">Promo</span>
+          <span class="opt-pill" data-key="headline" data-val="question">Question</span>
+          <span class="opt-pill" data-key="headline" data-val="urgency">Urgency</span>
+          <span class="opt-pill" data-key="headline" data-val="benefit">Benefit</span>
+        </div>
+      </div>
+      <div class="opt-group">
+        <div class="opt-label">CTA Button</div>
+        <div class="opt-pills" id="ctaPills">
+          <span class="opt-pill sel" data-key="cta" data-val="shopnow">Shop Now</span>
+          <span class="opt-pill" data-key="cta" data-val="learnmore">Learn More</span>
+          <span class="opt-pill" data-key="cta" data-val="signup">Sign Up</span>
+          <span class="opt-pill" data-key="cta" data-val="getstarted">Get Started</span>
+        </div>
+      </div>
+      <div class="opt-group">
+        <div class="opt-label">Visual Theme</div>
+        <div class="opt-pills" id="themePills">
+          <span class="opt-pill sel" data-key="theme" data-val="shopping">🛍️ Shopping</span>
+          <span class="opt-pill" data-key="theme" data-val="food">🍕 Food</span>
+          <span class="opt-pill" data-key="theme" data-val="travel">✈️ Travel</span>
+          <span class="opt-pill" data-key="theme" data-val="tech">💻 Tech</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ▸ 8  AD COPY ────────────────────────────────── -->
+<div class="slide content-slide" data-i="8">
+  <div class="slide-header">
+    <span class="tag">Copywriting</span>
+    <h2>Writing Compelling Ad Copy</h2>
+  </div>
+  <div class="cgrid c3">
+    <div class="ccard top-fb">
+      <div class="icon-wrap icon-fb">✍️</div>
+      <h3>Hook First</h3>
+      <p>You have 1.3 seconds. Open with a bold statement, a surprising stat, or an emotional trigger to stop the scroll instantly.</p>
+    </div>
+    <div class="ccard top-teal">
+      <div class="icon-wrap icon-teal">💎</div>
+      <h3>Focus on Benefits</h3>
+      <p>Don't list features — describe the transformation. "Save 2 hours a day" beats "Productivity software" every time.</p>
+    </div>
+    <div class="ccard top-rust">
+      <div class="icon-wrap icon-rust">📣</div>
+      <h3>Social Proof</h3>
+      <p>Numbers and testimonials build trust instantly. "10,000+ happy customers" or "⭐ 4.9 rating" in your copy converts.</p>
+    </div>
+  </div>
+  <div class="highlight" style="margin-top:18px;">
+    <h4>📝 The Winning Formula</h4>
+    <p><strong>Hook</strong> → <strong>Value Proposition</strong> → <strong>Social Proof</strong> → <strong>CTA</strong>. Keep primary text under 125 characters for mobile — the majority of Facebook traffic. Always A/B test at least two variations of headline and body copy.</p>
+  </div>
+</div>
+
+<!-- ▸ 9  SECTION 03 ─────────────────────────────── -->
+<div class="slide sec-slide" data-i="9">
+  <span class="sec-bg-num">03</span>
+  <div class="sec-content">
+    <span class="pill">Section Three</span>
+    <h2>BUDGETING &<br>BIDDING STRATEGIES</h2>
+    <p>Learn how to set budgets, choose the right bid strategy, and use the live simulator to plan your spend.</p>
+  </div>
+</div>
+
+<!-- ▸ 10 BUDGET TYPES ──────────────────────────── -->
+<div class="slide content-slide" data-i="10">
+  <div class="slide-header">
+    <span class="tag">Budget Types</span>
+    <h2>Daily vs Lifetime Budgets</h2>
+  </div>
+  <div class="cgrid c2" style="max-width:920px;">
+    <div class="ccard top-fb" style="border:2px solid var(--fb);">
+      <div class="icon-wrap icon-fb">📅</div>
+      <h3>Daily Budget</h3>
+      <p>The average amount you're willing to spend each day. Facebook paces spend throughout the day to maximise results. <strong>Best for ongoing campaigns</strong> where you want consistent, predictable daily spend.</p>
+    </div>
+    <div class="ccard top-teal" style="border:2px solid var(--teal);">
+      <div class="icon-wrap icon-teal">📊</div>
+      <h3>Lifetime Budget</h3>
+      <p>A total amount to spend over the campaign's entire duration. Facebook distributes spend across days to optimise delivery. <strong>Best for time-limited campaigns</strong> like product launches or seasonal sales.</p>
+    </div>
+  </div>
+  <div class="highlight" style="margin-top:18px;">
+    <h4>💡 Rule of Thumb</h4>
+    <p>Start with a daily budget of <strong>$20–$50</strong> per ad set. Give campaigns at least <strong>3–7 days</strong> before judging performance — Facebook's algorithm needs time to learn and optimise delivery within its exit phase.</p>
+  </div>
+</div>
+
+<!-- ▸ 11 BIDDING STRATEGIES (Table) ────────────── -->
+<div class="slide content-slide" data-i="11">
+  <div class="slide-header">
+    <span class="tag">Strategy</span>
+    <h2>Bidding Strategies & Optimisation</h2>
+  </div>
+  <table class="bid-table">
+    <thead>
+      <tr><th>Strategy</th><th>How It Works</th><th>Optimises For</th><th>Best When</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Lowest Cost</strong></td>
+        <td>Gets the most results for your budget at the lowest cost.</td>
+        <td><span class="badge b-fb">Results</span></td>
+        <td>Testing & scaling</td>
+      </tr>
+      <tr>
+        <td><strong>Cost Cap</strong></td>
+        <td>Sets a max CPA — Facebook tries to stay at or below your cap.</td>
+        <td><span class="badge b-teal">CPA</span></td>
+        <td>Proven campaigns</td>
+      </tr>
+      <tr>
+        <td><strong>Bid Cap</strong></td>
+        <td>Sets an absolute maximum bid per auction — full control.</td>
+        <td><span class="badge b-rust">Bid</span></td>
+        <td>Manual optimisation</td>
+      </tr>
+      <tr>
+        <td><strong>ROAS Target</strong></td>
+        <td>Facebook bids to hit your target return on ad spend.</td>
+        <td><span class="badge b-amber">Revenue</span></td>
+        <td>E-commerce</td>
+      </tr>
+      <tr>
+        <td><strong>Lowest Cost + Cap</strong></td>
+        <td>Lowest cost with a max spend cap per result for safety.</td>
+        <td><span class="badge b-rose">Balance</span></td>
+        <td>Scaling with guardrails</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ▸ 12 BUDGET SIMULATOR (Interactive) ─────────── -->
+<div class="slide content-slide" data-i="12">
+  <div class="slide-header">
+    <span class="tag">Interactive Simulator</span>
+    <h2>Budget & ROI Simulator</h2>
+  </div>
+  <div class="budget-wrap">
+    <div class="budget-panel">
+      <h3>📊 Adjust Your Parameters</h3>
+      <div class="slider-row">
+        <label>Daily Budget <em id="budgetVal">$50</em></label>
+        <input type="range" id="budgetSlider" min="10" max="500" value="50" step="10"/>
+      </div>
+      <div class="slider-row">
+        <label>Campaign Duration (days) <em id="daysVal">14</em></label>
+        <input type="range" id="daysSlider" min="3" max="90" value="14"/>
+      </div>
+      <div class="slider-row">
+        <label>Avg CPC ($) <em id="cpcVal">$1.20</em></label>
+        <input type="range" id="cpcSlider" min="0.3" max="5" value="1.2" step="0.1"/>
+      </div>
+      <div class="slider-row">
+        <label>Conversion Rate (%) <em id="crVal">3.2%</em></label>
+        <input type="range" id="crSlider" min="0.5" max="15" value="3.2" step="0.1"/>
+      </div>
+    </div>
+    <div class="budget-results">
+      <div class="br-card">
+        <div class="br-label">Total Spend</div>
+        <div class="br-val" id="totalSpend">$700</div>
+      </div>
+      <div class="br-card">
+        <div class="br-label">Est. Clicks</div>
+        <div class="br-val" id="estClicks">583</div>
+        <div class="br-sub">Based on avg CPC</div>
+      </div>
+      <div class="br-card">
+        <div class="br-label">Est. Conversions</div>
+        <div class="br-val" id="estConv">19</div>
+        <div class="br-sub">At current conv. rate</div>
+      </div>
+      <div class="br-card">
+        <div class="br-label">Cost Per Conversion</div>
+        <div class="br-val" id="estCPC2">$37.50</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ▸ 13 SECTION 04 ─────────────────────────────── -->
+<div class="slide sec-slide" data-i="13">
+  <span class="sec-bg-num">04</span>
+  <div class="sec-content">
+    <span class="pill">Section Four</span>
+    <h2>ANALYZING &<br>OPTIMISING CAMPAIGNS</h2>
+    <p>Dive into Facebook Insights, monitor the metrics that matter, and run data-driven A/B tests.</p>
+  </div>
+</div>
+
+<!-- ▸ 14 FB INSIGHTS ──────────────────────────── -->
+<div class="slide content-slide" data-i="14">
+  <div class="slide-header">
+    <span class="tag">Analytics</span>
+    <h2>Using Facebook Insights</h2>
+  </div>
+  <div class="cgrid c3">
+    <div class="ccard top-fb">
+      <div class="icon-wrap icon-fb">📊</div>
+      <h3>Custom Reports</h3>
+      <p>Build reports with exactly the columns you need — spend, results, cost per result, ROAS, and over 100 more metrics.</p>
+    </div>
+    <div class="ccard top-teal">
+      <div class="icon-wrap icon-teal">👥</div>
+      <h3>Audience Breakdown</h3>
+      <p>See which demographics are converting best. Break down by age, gender, location, device, and placement for deep insights.</p>
+    </div>
+    <div class="ccard top-rust">
+      <div class="icon-wrap icon-rust">📈</div>
+      <h3>Delivery Insights</h3>
+      <p>Understand how Facebook is pacing your ad delivery, which auctions you're winning, and where your budget is going.</p>
+    </div>
+  </div>
+  <div class="highlight" style="margin-top:18px;">
+    <h4>🔗 Connect Google Analytics</h4>
+    <p>Add UTM parameters to all ad URLs and link GA4 for cross-platform tracking. This gives you the full customer journey — from ad click through to conversion and beyond — in one place.</p>
+  </div>
+</div>
+
+<!-- ▸ 15 KPIs (Interactive Dashboard) ──────────── -->
+<div class="slide content-slide" data-i="15">
+  <div class="slide-header">
+    <span class="tag">Live Dashboard</span>
+    <h2>Key Performance Indicators</h2>
+  </div>
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-box" data-color="var(--fb)" data-val="2.8" data-label="CTR" data-unit="%" data-trend="+0.4%" data-trend-color="var(--teal)" data-fill="56" data-fill-color="var(--fb)"></div>
+    <div class="kpi-box" data-color="var(--teal)" data-val="$1.24" data-label="CPC" data-unit="" data-trend="-$0.18" data-trend-color="var(--teal)" data-fill="42" data-fill-color="var(--teal)"></div>
+    <div class="kpi-box" data-color="var(--rust)" data-val="4.1" data-label="Freq." data-unit="×" data-trend="+0.6×" data-trend-color="var(--rust)" data-fill="68" data-fill-color="var(--rust)"></div>
+    <div class="kpi-box" data-color="var(--amber)" data-val="3.8" data-label="ROAS" data-unit="×" data-trend="+0.9×" data-trend-color="var(--teal)" data-fill="76" data-fill-color="var(--amber)"></div>
+  </div>
+  <div class="cgrid c3" style="max-width:920px;margin-top:18px;">
+    <div class="ccard top-fb">
+      <h3>CPM</h3>
+      <p><strong style="color:var(--fb);font-size:22px;">$8.40</strong><br>Cost per thousand impressions. Lower = more efficient reach across your target audience.</p>
+    </div>
+    <div class="ccard top-teal">
+      <h3>Conv. Rate</h3>
+      <p><strong style="color:var(--teal);font-size:22px;">3.6%</strong><br>The percentage of ad clicks converting to your desired action — the ultimate efficiency metric.</p>
+    </div>
+    <div class="ccard top-rose">
+      <h3>Cost/Conv.</h3>
+      <p><strong style="color:var(--rose);font-size:22px;">$34.20</strong><br>Total spend divided by total conversions. This is your single most important profitability number.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ▸ 16 A/B TESTING (Interactive Simulator) ─── -->
+<div class="slide content-slide" data-i="16">
+  <div class="slide-header">
+    <span class="tag">Interactive</span>
+    <h2>A/B Testing Simulator</h2>
+  </div>
+  <div class="ab-wrap" id="abWrap">
+    <div class="ab-card" id="abCardA">
+      <div class="ab-header">
+        <span class="ab-badge" style="background:rgba(24,119,242,0.12);color:var(--fb);">Variant A</span>
+        <span class="ab-win-badge">🏆 Winner</span>
+      </div>
+      <div class="ab-preview" style="background:linear-gradient(135deg,var(--fb),var(--fb-lt));">
+        "Double Your Sales This Month"
+      </div>
+      <div class="ab-stats">
+        <div class="ab-row"><span>Impressions</span><span id="impA">12,400</span></div>
+        <div class="ab-row"><span>Clicks</span><span id="clkA">347</span></div>
+        <div class="ab-row"><span>CTR</span><span id="ctrA">2.80%</span></div>
+        <div class="ab-row"><span>Conversions</span><span id="convA">24</span></div>
+        <div class="ab-row"><span>Conv. Rate</span><span id="convRateA">6.92%</span></div>
+      </div>
+    </div>
+    <div class="ab-card" id="abCardB">
+      <div class="ab-header">
+        <span class="ab-badge" style="background:rgba(44,182,122,0.12);color:var(--teal);">Variant B</span>
+        <span class="ab-win-badge">🏆 Winner</span>
+      </div>
+      <div class="ab-preview" style="background:linear-gradient(135deg,var(--teal),#1a9e5c);">
+        "Free Trial — No Credit Card Needed"
+      </div>
+      <div class="ab-stats">
+        <div class="ab-row"><span>Impressions</span><span id="impB">12,100</span></div>
+        <div class="ab-row"><span>Clicks</span><span id="clkB">412</span></div>
+        <div class="ab-row"><span>CTR</span><span id="ctrB">3.40%</span></div>
+        <div class="ab-row"><span>Conversions</span><span id="convB">18</span></div>
+        <div class="ab-row"><span>Conv. Rate</span><span id="convRateB">4.37%</span></div>
+      </div>
+    </div>
+  </div>
+  <button class="ab-run-btn" id="abRunBtn">🔄 Run New Test</button>
+</div>
+
+<!-- ▸ 17 END ──────────────────────────────────── -->
+<div class="slide end-slide" data-i="17">
+  <div class="ring-wrap" style="opacity:0.5;">
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+  </div>
+  <div class="end-content">
+    <h1>GO BUILD<br><span>GREAT ADS</span></h1>
+    <p>With the right targeting, creative, budget strategy, and data-driven optimisation, your Facebook Ads campaigns are set up for success.</p>
+    <div class="end-dots">
+      <span style="background:var(--fb)"></span>
+      <span style="background:var(--teal)"></span>
+      <span style="background:var(--rust)"></span>
+      <span style="background:var(--amber)"></span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- ═══════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════ -->
+<script>
+(function(){
+  // ─── SLIDE ENGINE ──────────────────────────────
+  const slides   = document.querySelectorAll('.slide');
+  const dotsWrap = document.getElementById('sidedots');
+  const progFill = document.getElementById('prog-fill');
+  const curNum   = document.getElementById('curNum');
+  const totNum   = document.getElementById('totNum');
+  let cur        = 0;
+  const total    = slides.length;
+  totNum.textContent = total;
+
+  // build dots
+  slides.forEach((_,i)=>{
+    const d = document.createElement('button');
+    d.className = 'sdot' + (i===0?' on':'');
+    d.setAttribute('aria-label','Slide '+(i+1));
+    d.onclick = ()=> goTo(i);
+    dotsWrap.appendChild(d);
+  });
+
+  function goTo(idx){
+    if(idx === cur || idx < 0 || idx >= total) return;
+    slides[cur].classList.remove('on');
+    cur = idx;
+    slides[cur].classList.add('on');
+    dotsWrap.querySelectorAll('.sdot').forEach((d,i)=> d.classList.toggle('on', i===cur));
+    progFill.style.width = ((cur/(total-1))*100)+'%';
+    curNum.textContent = cur+1;
+
+    // trigger KPI bars animation on slide 15
+    if(cur === 15) setTimeout(animateKPIs, 350);
+  }
+
+  document.getElementById('nav-prev').onclick = ()=> goTo(cur-1);
+  document.getElementById('nav-next').onclick = ()=> goTo(cur+1);
+
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight'||e.key===' '){ e.preventDefault(); goTo(cur+1); }
+    if(e.key==='ArrowLeft' ){ e.preventDefault(); goTo(cur-1); }
+  });
+
+  // touch swipe
+  let tx = 0;
+  document.addEventListener('touchstart', e=>{ tx = e.touches[0].clientX; },{ passive:true });
+  document.addEventListener('touchend',   e=>{
+    const d = tx - e.changedTouches[0].clientX;
+    if(Math.abs(d)>50){ d>0 ? goTo(cur+1) : goTo(cur-1); }
+  });
+
+  // ─── KPI RENDER & ANIMATE ──────────────────────
+  (function renderKPIs(){
+    const grid = document.getElementById('kpiGrid');
+    grid.querySelectorAll('.kpi-box').forEach(box=>{
+      const color = box.dataset.color;
+      box.innerHTML = `
+        <div class="kpi-stripe" style="background:${color}"></div>
+        <div class="kpi-label">${box.dataset.label}</div>
+        <div class="kpi-val" style="color:${color}">${box.dataset.val}${box.dataset.unit}</div>
+        <div class="kpi-trend" style="color:${box.dataset.trendColor}">${box.dataset.trend}</div>
+        <div class="kpi-bar"><div class="kpi-fill" style="background:${box.dataset.fillColor};width:0%" data-target="${box.dataset.fill}"></div></div>`;
+    });
+  })();
+
+  function animateKPIs(){
+    document.querySelectorAll('.kpi-fill').forEach(f=>{
+      f.style.width = f.dataset.target + '%';
+    });
+  }
+
+  // ─── AD CREATIVE BUILDER (slide 7) ─────────────
+  const headlines = {
+    promo:    { h:'Shop the Summer Sale',  d:'Up to 60% off on all premium collections. Limited time only.' },
+    question: { h:'Tired of Paying Too Much?', d:'Discover the smarter way to shop. Save big on every purchase.' },
+    urgency:  { h:'Only 3 Items Left!',   d:'Don\'t miss out — grab yours before stock runs out tonight.' },
+    benefit:  { h:'Save 2 Hours Every Day', d:'Streamline your workflow with tools trusted by 50,000+ teams.' }
+  };
+  const themes = {
+    shopping: { emoji:'🛍️', grad:'linear-gradient(135deg,#1877F2,#1B5FC4)' },
+    food:     { emoji:'🍕', grad:'linear-gradient(135deg,#E84393,#C75B3A)' },
+    travel:   { emoji:'✈️', grad:'linear-gradient(135deg,#2CB67A,#1B5FC4)' },
+    tech:     { emoji:'💻', grad:'linear-gradient(135deg,#6C5CE7,#1877F2)' }
+  };
+  const ctas = { shopnow:'Shop Now', learnmore:'Learn More', signup:'Sign Up', getstarted:'Get Started' };
+
+  function updatePreview(){
+    const hKey = document.querySelector('#headlinePills .sel')?.dataset.val || 'promo';
+    const tKey = document.querySelector('#themePills .sel')?.dataset.val || 'shopping';
+    const cKey = document.querySelector('#ctaPills .sel')?.dataset.val || 'shopnow';
+    document.getElementById('previewHeadline').textContent = headlines[hKey].h;
+    document.getElementById('previewDesc').textContent     = headlines[hKey].d;
+    document.getElementById('previewEmoji').textContent    = themes[tKey].emoji;
+    document.getElementById('previewCta').textContent      = ctas[cKey];
+    document.querySelector('.cp-img').style.background      = themes[tKey].grad;
+  }
+
+  document.querySelectorAll('.opt-pill').forEach(pill=>{
+    pill.addEventListener('click', function(){
+      const group = this.parentElement;
+      group.querySelectorAll('.opt-pill').forEach(p=> p.classList.remove('sel'));
+      this.classList.add('sel');
+      updatePreview();
+    });
+  });
+
+  // ─── BUDGET SIMULATOR (slide 12) ───────────────
+  const budgetSlider = document.getElementById('budgetSlider');
+  const daysSlider   = document.getElementById('daysSlider');
+  const cpcSlider    = document.getElementById('cpcSlider');
+  const crSlider     = document.getElementById('crSlider');
+
+  function calcBudget(){
+    const budget = +budgetSlider.value;
+    const days   = +daysSlider.value;
+    const cpc    = +cpcSlider.value;
+    const cr     = +crSlider.value / 100;
+
+    document.getElementById('budgetVal').textContent  = '$'+budget;
+    document.getElementById('daysVal').textContent    = days;
+    document.getElementById('cpcVal').textContent     = '$'+cpc.toFixed(2);
+    document.getElementById('crVal').textContent      = (cr*100).toFixed(1)+'%';
+
+    const totalSpend    = budget * days;
+    const clicks        = Math.round(totalSpend / cpc);
+    const conversions   = Math.round(clicks * cr);
+    const costPerConv   = conversions > 0 ? (totalSpend / conversions).toFixed(2) : '—';
+
+    document.getElementById('totalSpend').textContent = '$'+totalSpend.toLocaleString();
+    document.getElementById('estClicks').textContent  = clicks.toLocaleString();
+    document.getElementById('estConv').textContent    = conversions.toLocaleString();
+    document.getElementById('estCPC2').textContent    = '$'+costPerConv;
+  }
+  [budgetSlider, daysSlider, cpcSlider, crSlider].forEach(s=> s.addEventListener('input', calcBudget));
+  calcBudget();
+
+  // ─── A/B TEST SIMULATOR (slide 16) ─────────────
+  document.getElementById('abRunBtn').addEventListener('click', function(){
+    // randomise plausible stats
+    const impA = 11000 + Math.floor(Math.random()*3000);
+    const impB = 11000 + Math.floor(Math.random()*3000);
+    const ctrA = (2.0 + Math.random()*3.0);
+    const ctrB = (2.0 + Math.random()*3.0);
+    const clkA = Math.round(impA * ctrA / 100);
+    const clkB = Math.round(impB * ctrB / 100);
+    const crA  = (2.5 + Math.random()*6);
+    const crB  = (2.5 + Math.random()*6);
+    const cvA  = Math.round(clkA * crA / 100);
+    const cvB  = Math.round(clkB * crB / 100);
+
+    document.getElementById('impA').textContent  = impA.toLocaleString();
+    document.getElementById('clkA').textContent  = clkA.toLocaleString();
+    document.getElementById('ctrA').textContent  = ctrA.toFixed(2)+'%';
+    document.getElementById('convA').textContent = cvA;
+    document.getElementById('convRateA').textContent = crA.toFixed(2)+'%';
+
+    document.getElementById('impB').textContent  = impB.toLocaleString();
+    document.getElementById('clkB').textContent  = clkB.toLocaleString();
+    document.getElementById('ctrB').textContent  = ctrB.toFixed(2)+'%';
+    document.getElementById('convB').textContent = cvB;
+    document.getElementById('convRateB').textContent = crB.toFixed(2)+'%';
+
+    // winner = higher conversions
+    const cardA = document.getElementById('abCardA');
+    const cardB = document.getElementById('abCardB');
+    cardA.classList.remove('winner'); cardB.classList.remove('winner');
+    if(cvA >= cvB) cardA.classList.add('winner');
+    else           cardB.classList.add('winner');
+  });
+
+})();
+</script>
+</body>
+</html>
